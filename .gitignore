@@ -1,3 +1,9 @@
 *.o
 .idea
 cmake-build-debug
+ubuntu*
+Makefile
+CMakeCache*
+cmake_*
+CMakeFiles
+MIG_generator
