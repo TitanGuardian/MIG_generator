@@ -8,4 +8,6 @@ include_directories(.)
 add_executable(MIG_generator
         main.cpp
         mig.cpp
-        )
+        permutation.cpp
+        SearchMutation.cpp
+        mig_generator.cpp BestSchemasDict.cpp BestSchemasDict.h)

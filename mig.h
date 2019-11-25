@@ -10,13 +10,14 @@
 #include <bitset>
 
 //do not change
-#define FANIN 5
 #define  MAXLOOP 100
 
 typedef std::bitset<32> FuncVect;
-typedef uint32_t NodeNumber;
+typedef uint8_t NodeNumber;
 
 struct MIG;
+#include "BestSchemasDict.h"
+
 
 struct Node {
     class ExceptionCanNotCompute: std::exception {};
@@ -28,9 +29,11 @@ struct Node {
     NodeNumber right;
     bool right_inv;
     bool computed;
-    explicit operator NodeNumber ();
+
     FuncVect impl_func;
 
+
+    explicit operator NodeNumber ();
     Node () = default;
     Node (  NodeNumber  _number,
             NodeNumber _left, bool _left_inv,
@@ -61,13 +64,19 @@ struct MIG {
 
 
     explicit MIG (const std::vector<std::string>& mig_str);
+    MIG (const BestSchema& schema_info, const std::vector<SchemaNode>& schema_nodes);
+
+
+    MIG () = default;
+    MIG (MIG && mig) = default;
+    MIG& operator= (MIG && mig) = default;
 
     bool is_correct();
 //    static std::bitset<32> convert_to_bitset(uint64_t number);
 //    static uint32_t convert_to_uint32 (const std::bitset<32> & vector);
     void init_input_nodes();
     void compute();
-    static bool bunch_check_update(const std::string& filename);
+    static bool bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib);
 
 };
 

@@ -124,7 +124,7 @@ MIG::MIG (const std::vector<std::string>& mig_str)  {
     }
     //
 
-    compute_seq.resize(complexity+FANIN+1);
+    compute_seq.resize(complexity+5+1);
     std::iota(compute_seq.begin(), compute_seq.end(), 0);
     std::sort(compute_seq.begin(),compute_seq.end(),
             [&](const uint32_t &x, const uint32_t &y) -> bool
@@ -134,8 +134,73 @@ MIG::MIG (const std::vector<std::string>& mig_str)  {
             return  u<v;
         }
     );
-
 }
+
+
+MIG::MIG(const BestSchema& schema_info, const std::vector<SchemaNode>& schema_nodes) {
+
+    vector = std::bitset<32>(schema_info.mincode);
+    type = true;
+    complexity = schema_info.complexity;
+    out = schema_info.out_node;
+    out_invert = schema_info.out_invert;
+    init_input_nodes();
+    // read nodes from schema_nodes
+    {
+        uint_fast32_t it;
+        for (it = 0; it < complexity; ++it) {
+            bool left_inv, mid_inv, right_inv;
+            switch ((uint8_t) schema_nodes[it].invert) {
+                case 0:
+                    left_inv = false; mid_inv = false; right_inv = false;
+                    break;
+                case 1:
+                    left_inv = false; mid_inv = false; right_inv = true;
+                    break;
+                case 2:
+                    left_inv = false; mid_inv = true; right_inv = false;
+                    break;
+                case 3:
+                    left_inv = false; mid_inv = true; right_inv = true;
+                    break;
+                case 4:
+                    left_inv = true; mid_inv = false; right_inv = false;
+                    break;
+                case 5:
+                    left_inv = true; mid_inv = false; right_inv = true;
+                    break;
+                case 6:
+                    left_inv = true; mid_inv = true; right_inv = false;
+                    break;
+                case 7:
+                    left_inv = true; mid_inv = true; right_inv = true;
+                    break;
+                default:
+                    throw ExceptionInvalidInput();
+            }
+            nodes[it+6] = Node(it+6, schema_nodes[0].node_left, left_inv,
+                               schema_nodes[0].node_mid, mid_inv,
+                               schema_nodes[0].node_right, right_inv);
+        }
+    }
+    //
+    compute_seq.resize(complexity+5+1);
+    std::iota(compute_seq.begin(), compute_seq.end(), 0);
+    std::sort(compute_seq.begin(),compute_seq.end(),
+              [&](const uint32_t &x, const uint32_t &y) -> bool
+              {
+                  uint32_t  u = MAX(nodes[x].left, nodes[x].mid, nodes[x].right);
+                  uint32_t  v = MAX(nodes[y].left, nodes[y].mid, nodes[y].right);
+                  return  u<v;
+              }
+    );
+}
+
+
+
+
+
+
 
 //std::bitset<32> MIG::convert_to_bitset(uint64_t number) { //ok
 //    std::bitset<32> res;
@@ -183,7 +248,7 @@ std::string get_file_contents(const char *filename)
 
 }
 
-bool MIG::bunch_check_update(const std::string& filename) {
+bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib) {
     size_t  wrong_cnt = 0 ;
     size_t  error_cnt = 0 ;
     size_t  ok_cnt = 0 ;
@@ -207,6 +272,7 @@ bool MIG::bunch_check_update(const std::string& filename) {
                 ++ok_cnt;
                 out_log <<mig_str[0]+" : OK" <<+" implemented: "
                         << (mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func)
+                        << (mig_lib.add(mig)?" is better":" is not better")
                         << "\n";
             }
             else {
@@ -216,6 +282,7 @@ bool MIG::bunch_check_update(const std::string& filename) {
                         << ", but considered " << mig.vector
                         << "\n";
             }
+
         }
         catch (Node::ExceptionCanNotCompute&) {
             ++error_cnt;

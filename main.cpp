@@ -6,10 +6,17 @@
 #include <string>
 #include <sstream>
 
-#include "permutation.h"
 #include "mig.h"
+#include "SearchMutation.h"
+#include "BestSchemasDict.h"
+
 int main () {
-    MIG::bunch_check_update("final_1.txt");
+
+    BestSchemasDict my_lib("./data");
+    unsigned int in = 401139735;
+    std::cout<<"\n"<<my_lib.dict[in].complexity << " " << my_lib.dict[in].vector<< std::endl;
+
+
 
 //    MIG m;
 //    m.compute();
@@ -29,6 +36,13 @@ int main () {
 //    Permutation<3> v({1,0,2});
 //    std::vector<bool> rec =  v.apply<bool>({true, false , false});
 //    for (auto it : rec) std::cout << it;
+
+//
+//    SearchMutation my_searcher;
+//    std::cout<<my_searcher.find_mincode(12300001).vector;
+
+
+
 
     return 0;
 }
