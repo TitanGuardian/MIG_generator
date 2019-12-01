@@ -14,7 +14,7 @@
 #include "mig.h"
 
 
-#define THREAD_COUNT 1000
+#define THREAD_COUNT 2048
 
 class MIG_Generator {
 public:
@@ -33,7 +33,7 @@ public:
     std::mutex generated_migs_mutex;
     std::mutex cout_mutex;
     std::vector<bool> thread_ready;
-
+    std::vector<std::thread> threads_tasks;
     void start();
 
 
@@ -46,10 +46,10 @@ public:
 
     };
 
-    size_t wait_free_thread (std::vector<std::thread>& threads_tasks);
+    size_t wait_free_thread (std::vector<std::thread>& threads_tasks, std::vector<bool> &thread_ready);
 
 
-    void async_brute_force (Simple_Generator& this_gen, uint8_t level, InputComplexity in_comp); // async
+    static void async_brute_force (Simple_Generator& this_gen, uint8_t level, InputComplexity in_comp); // async
     static std::vector<InputComplexity> get_input_complexity_list (uint_fast8_t cur_complexity);
     static void compute_migs( MIG & mig_left, MIG & mig_mid, MIG & mig_right,
                              const Simple_Generator::InputComplexity& in_compl,

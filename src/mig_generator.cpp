@@ -35,6 +35,7 @@ void MIG_Generator::print_to_file(const std::string& filename) {
 
 Simple_Generator::Simple_Generator(size_t generate_until_this_complexity)
     : complexity_bound(generate_until_this_complexity)
+    , threads_tasks(THREAD_COUNT)
     , thread_ready(THREAD_COUNT, true)
 {
     std::cout << "Starting generation with Simple_Generation algorithm \n";
@@ -43,7 +44,7 @@ Simple_Generator::Simple_Generator(size_t generate_until_this_complexity)
 }
 
 void Simple_Generator::start() {
-    size_t current_complexity = 0; // change if add save/load of generation
+    size_t current_complexity = 0; // change when add save/load of generation
     generated_migs.resize(complexity_bound+1);
 
     if (current_complexity == 0) {
@@ -67,6 +68,10 @@ void Simple_Generator::start() {
         for (auto & el : get_input_complexity_list(current_complexity))  {
             async_brute_force(*this, current_complexity, el);
         }
+        for (size_t itr = 0; itr < THREAD_COUNT; ++itr) {
+            if (threads_tasks[itr].joinable())
+                threads_tasks[itr].join();
+        }
         std::cout<<"End with complexity = " << current_complexity <<std::endl;
     }
 
@@ -75,11 +80,12 @@ void Simple_Generator::start() {
 }
 
 
-size_t Simple_Generator::wait_free_thread (std::vector<std::thread> &threads_tasks) {
+size_t Simple_Generator::wait_free_thread (std::vector<std::thread> &threads_tasks,
+                                           std::vector<bool> &thread_ready) {
     std::thread tmp;
     for(;;) {
         for (size_t itr = 0; itr < THREAD_COUNT; ++itr) {
-            if (thread_ready[itr] || threads_tasks[itr].get_id() == tmp.get_id()) {
+            if (thread_ready[itr]) {
                 if (threads_tasks[itr].joinable())
                     threads_tasks[itr].join();
                 return itr;
@@ -96,17 +102,17 @@ void Simple_Generator::async_brute_force (Simple_Generator& this_gen, uint8_t le
     //std::cout<< "Start thread - " << std::this_thread::get_id() <<std::endl;
 
 
-    std::vector<std::thread> threads_tasks(THREAD_COUNT);
+
 
 
 
     for  (auto & mig_left: this_gen.generated_migs[in_compl.left]) {
         for  (auto & mig_mid: this_gen.generated_migs[in_compl.mid]) {
             for  (auto & mig_right: this_gen.generated_migs[in_compl.right]) {
-                uint32_t thread_n = wait_free_thread(threads_tasks);
-                thread_ready[thread_n] = false;
+                uint32_t thread_n = this_gen.wait_free_thread(this_gen.threads_tasks, this_gen.thread_ready);
+                this_gen.thread_ready[thread_n] = false;
 
-                threads_tasks[thread_n] = std::move(std::thread(compute_migs,std::ref (mig_left.second),
+                this_gen.threads_tasks[thread_n] = std::move(std::thread(compute_migs,std::ref (mig_left.second),
                                                                 std::ref (mig_mid.second),
                                                                 std::ref (mig_right.second),
                                                                 in_compl,std::ref(this_gen),level, thread_n));
@@ -146,11 +152,6 @@ void Simple_Generator::async_brute_force (Simple_Generator& this_gen, uint8_t le
 //            });
 //
 
-    std::cout<<"joining" << std::endl;
-    for (size_t itr = 0; itr < THREAD_COUNT; ++itr) {
-        if (threads_tasks[itr].joinable())
-            threads_tasks[itr].join();
-    }
 }
 
 

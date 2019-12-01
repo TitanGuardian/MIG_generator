@@ -17,7 +17,7 @@ int main () {
 //    my_lib.out_statistic("initial database");
 //    std::cout<<my_lib.dict.size();
 
-    Simple_Generator my_gen(2);
+    Simple_Generator my_gen(3);
 
 
 
