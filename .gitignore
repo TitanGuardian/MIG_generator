@@ -2,7 +2,6 @@
 .idea
 cmake-build-debug
 ubuntu*
-Makefile
 CMakeCache*
 cmake*
 CMakeFiles
