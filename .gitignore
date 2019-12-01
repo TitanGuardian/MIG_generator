@@ -4,6 +4,7 @@ cmake-build-debug
 ubuntu*
 Makefile
 CMakeCache*
-cmake_*
+cmake*
 CMakeFiles
 MIG_generator
+theory
