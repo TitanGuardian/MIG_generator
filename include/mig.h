@@ -72,8 +72,7 @@ struct MIG {
     MIG& operator= (MIG && mig) = default;
     MIG& operator= (const MIG& mig) = default;
     bool is_correct();
-//    static std::bitset<32> convert_to_bitset(uint64_t number);
-//    static uint32_t convert_to_uint32 (const std::bitset<32> & vector);
+
     void init_input_nodes();
     void compute();
     static bool bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib, const SearchMutation& sm);

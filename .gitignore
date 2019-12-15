@@ -1,10 +1,11 @@
 *.o
 .idea
-cmake-build-debug
+cmake-build-debug*
 ubuntu*
 CMakeCache*
 cmake*
 cmake2*
-CMakeFiles
+build*
+CMakeFiles*
 MIG_generator
-theory
+theory*

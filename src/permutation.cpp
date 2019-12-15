@@ -16,26 +16,6 @@ PermutationGenerator32::PermutationGenerator32() {
 }
 
 
-void PermutationGenerator32::generate_permutation() {
-    size_t it=0, it_end;
-    it_end = all_permutations.size();
-    for (size_t it_a = 1; it_a < it_end ; ++it_a) {
-        for (size_t it_b = 1; it_b < it_end; ++it_b) {
-            Permutation_vars composition(all_permutations[it_b] * all_permutations[it_a]);
-            auto find_rez = std::find(all_permutations.begin(),all_permutations.end(), composition);
-            if (find_rez==all_permutations.end()) {
-                if (composition.variable_order.permutation==std::vector<uint32_t>({0,4,1,2,3})) {
-                    std::cout<<"a : "<< all_permutations[it_a].variable_order<<" "<<all_permutations[it_a].variable_negation << "  "<< all_permutations[it_a].vector_permutation << std::endl;
-                    std::cout<<"b : " <<all_permutations[it_b].variable_order<<" "<<all_permutations[it_b].variable_negation << "  "<< all_permutations[it_b].vector_permutation << std::endl;
-                    std::cout<<"com:" <<composition.variable_order<<" "<<composition.variable_negation << "  "<< composition.vector_permutation << std::endl;
-                }
-                all_permutations.emplace_back(std::move(composition));
-            }
-        }
-        it_end = all_permutations.size();
-    }
-}
-
 bool NextSet(std::vector<unsigned int> &perm)
 {
     unsigned int n = perm.size();

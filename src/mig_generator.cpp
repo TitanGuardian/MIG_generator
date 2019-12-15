@@ -97,14 +97,6 @@ size_t Simple_Generator::wait_free_thread (std::vector<std::thread> &threads_tas
 
 // very long code
 void Simple_Generator::async_brute_force (Simple_Generator& this_gen, uint8_t level, const InputComplexity in_compl){
-    //std::lock_guard<std::mutex> lock (this_gen.generated_migs_mutex);
-    //std::cout<<(int)in_compl.left<<" "<<(int)in_compl.mid<<" "<<(int)in_compl.right<<" "<<std::endl;
-    //std::cout<< "Start thread - " << std::this_thread::get_id() <<std::endl;
-
-
-
-
-
 
     for  (auto & mig_left: this_gen.generated_migs[in_compl.left]) {
         for  (auto & mig_mid: this_gen.generated_migs[in_compl.mid]) {
@@ -120,38 +112,6 @@ void Simple_Generator::async_brute_force (Simple_Generator& this_gen, uint8_t le
             }
         }
     }
-
-//
-//    compute_migs(mig_left.second,mig_mid.second,mig_right.second,
-//                 mig_res,in_compl,this_gen,level);
-
-
-//
-//    std::for_each(
-//            std::execution::par_unseq,
-//            this_gen.generated_migs[in_compl.left].begin(),
-//            this_gen.generated_migs[in_compl.left].end(),
-//            [&](auto& mig_left)
-//            {
-//                std::for_each(
-//                        std::execution::par_unseq,
-//                        this_gen.generated_migs[in_compl.mid].begin(),
-//                        this_gen.generated_migs[in_compl.mid].end(),
-//                        [&](auto& mig_mid)
-//                        {
-//                            std::for_each(
-//                                    std::execution::par_unseq,
-//                                    this_gen.generated_migs[in_compl.right].begin(),
-//                                    this_gen.generated_migs[in_compl.right].end(),
-//                                    [&](auto& mig_right)
-//                                    {
-//                                        compute_migs(mig_left.second,mig_mid.second,mig_right.second,
-//                                                mig_res,in_compl,this_gen,level);
-//                                    });
-//                        });
-//            });
-//
-
 }
 
 

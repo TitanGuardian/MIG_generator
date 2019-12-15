@@ -13,7 +13,6 @@ BestSchemasDict::BestSchemasDict(std::string _filename)
 }
 
 
-
 void BestSchemasDict::load() {
     std::ifstream input( filename.c_str(), std::ios::binary );
     // copies all data into buffer
@@ -34,16 +33,7 @@ void BestSchemasDict::load() {
 
         BestSchema new_schema = *((BestSchema*)tmp);
         delete[] tmp;
-//
-//        new_schema.mincode = (uint32_t)buffer[it]        |
-//                             (uint32_t)buffer[it+1] << 8 |
-//                             (uint32_t)buffer[it+2] << 16|
-//                             (uint32_t)buffer[it+3] << 24;
-//        it = it + 4;
-//        new_schema.complexity = buffer[it++];
-//        new_schema.out_node = buffer[it] >> 1;
-//        new_schema.out_invert = buffer[it] & 1;
-//        ++it;
+
         std::vector<SchemaNode> new_schema_nodes;
         new_schema_nodes.reserve(new_schema.complexity);
         //read
@@ -54,17 +44,13 @@ void BestSchemasDict::load() {
             tmp[1] = buffer[it++];
             tmp[2] = buffer[it++];
             tmp[3] = buffer[it++];
-//            new_node.node_left = buffer[it++];
-//            new_node.node_mid = buffer[it++];
-//            new_node.node_right = buffer[it++];
-//            new_node.invert = buffer[it++];
             new_schema_nodes.push_back(*((SchemaNode*)tmp));
             delete[] tmp;
         }
 
         //constructing mig
         MIG new_mig(new_schema,new_schema_nodes);
-//        new_mig.compute();
+
         dict[new_schema.mincode] = std::move(new_mig);
     }
 }
@@ -79,9 +65,6 @@ void BestSchemasDict::save() {
         best_schema.out_node = pair.second.out;
 
 
-//        output.write((char *)&pair.first,4); // mincode
-//        output.write((char *)&pair.second.complexity,1); // complexity
-//        unsigned char tmp = (uint8_t)pair.second.out << 1 | (uint8_t)pair.second.out_invert;
         output.write((char*)&best_schema,6); // out + out_invert
         for (size_t it = 6; it < pair.second.nodes.size(); ++it) {
             SchemaNode schema_node;

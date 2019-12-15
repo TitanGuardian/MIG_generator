@@ -61,15 +61,10 @@ public:
 
     };
 
-    std::vector<Permutation_vars> all_permutations;
-    std::vector<Permutation_vars> negation_mutations;
     std::vector<Permutation_vars> mutations;
 
     PermutationGenerator32 ();
 
-    void generate_permutation ();
-    static void generate_permutation1 ();
-    void generate_negation();
     void generate_final_mutations();
 
     void print_mutations(const std::string &filename);

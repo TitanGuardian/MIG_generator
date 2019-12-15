@@ -11,14 +11,6 @@
 #define MAX(a,b,c) (a>b?(a>c?a:c):(b>c?b:c))
 
 
-//bool operator== (const std::vector<bool> &lhs, const std::vector<bool> &rhs) {
-//    if (lhs.size()!=rhs.size()) return false;
-//    for (size_t i = 0 ; i < lhs.size() ; ++ i ) {
-//        if (lhs[i]!=rhs[i]) return false;
-//    }
-//    return true;
-//}
-
 Node::Node(NodeNumber _number, NodeNumber _left, bool _left_inv, NodeNumber _mid, bool _mid_inv,
            NodeNumber _right, bool _right_inv)
            :    number(_number)
@@ -80,9 +72,7 @@ bool MIG::is_correct() {
 
 
 MIG::MIG (const std::vector<std::string>& mig_str)  {
-    //read_from_file();
-    //
-    //std::cout <<std::endl<< mincode;
+
     {
         uint32_t mincode;
         std::istringstream input(mig_str[0]);
@@ -181,14 +171,6 @@ MIG::MIG(const BestSchema& schema_info, const std::vector<SchemaNode>& schema_no
 
     compute_node_order();
 
-//    std::sort(compute_seq.begin(),compute_seq.end(),
-//              [&](const uint32_t &x, const uint32_t &y) -> bool
-//              {
-//                  uint32_t  u = MAX(nodes[x].left, nodes[x].mid, nodes[x].right);
-//                  uint32_t  v = MAX(nodes[y].left, nodes[y].mid, nodes[y].right);
-//                  return  u<v;
-//              }
-//    );
 }
 
 void MIG::compute_node_order() {
@@ -225,28 +207,6 @@ void MIG::compute_node_order() {
         }
     }
 }
-
-
-
-
-
-
-//std::bitset<32> MIG::convert_to_bitset(uint64_t number) { //ok
-//    std::bitset<32> res;
-//    for (size_t i=0 ; i < 32 ; ++i) {
-//        res[i]=(number%2);
-//        number /= 2;
-//    }
-//    if (number != res.to_ullong()) std::cout<<"WTF!!!!\n";
-//    return res;
-//}
-//uint32_t MIG::convert_to_uint32 (const std::bitset<32> &vector) { //ok
-//    uint32_t  res = 0;
-//    for (int i=31 ; i >= 0 ; --i) {
-//        res += std::pow(2, 31-i)*vector[i];
-//    }
-//    return res;
-//}
 
 
 void MIG::init_input_nodes() {

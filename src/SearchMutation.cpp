@@ -11,12 +11,6 @@ SearchMutation::SearchMutation () {
         PermutationGenerator32 my_gen;
         mutations = std::move(my_gen.mutations);
     }
-//    decision_tree_root = std::make_shared<TreeNode>(TreeNode());
-//    for (auto & el : mutations) {
-//        decision_tree_root->available_mutations.push_back(&el);
-//    }
-    //tree_deep = 0;
-    //compute_all_nodes();
 }
 
 
