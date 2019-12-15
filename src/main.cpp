@@ -11,23 +11,36 @@
 #include "BestSchemasDict.h"
 #include "mig_generator.h"
 
+
+#include <set>
+
+
+
+
 int main () {
-//
     BestSchemasDict my_lib("./data");
-//    SearchMutation sm;
+    SearchMutation sm;
+    my_lib.out_statistic("some little circuits");
+    std::cout<<my_lib.dict.size()<<"\n";
+
+    return 0;
+}
+
+
+
+//
+
 //    std::cout << "hfak";
-//    MIG::bunch_check_update("./simple.txt", my_lib,sm);
+
 //    std::cout <<sm.find_mincode(12).vector;
 
 //    PermutationGenerator32::generate_permutation1();
 
 
-    my_lib.out_statistic("initial database");
-    std::cout<<my_lib.dict.size();
+//    my_lib.out_statistic("add aig db");
+
 
 //    Simple_Generator my_gen(4);
-
-
 
 //    MIG m;
 //    m.compute();
@@ -51,9 +64,13 @@ int main () {
 //
 //    SearchMutation my_searcher;
 //    std::cout<<my_searcher.find_mincode(12300001).vector;
-
-
-
-
-    return 0;
-}
+//    SearchMutation sm;
+//    std::set<uint32_t> mincodes;
+//    int prog = 0 ;
+//    uint64_t crap = 4294967296 / 1000000;
+//    for (uint64_t itr1 = 0 ; itr1 < 4294967296 ; ++itr1) {
+//        mincodes.insert(sm.find_mincode(itr1).vector.to_ulong());
+//        if (itr1%crap==0) {++prog;std::cout << prog <<std::endl; }
+//        if (prog==10) break;
+//    }
+//    std::cout << mincodes.size();

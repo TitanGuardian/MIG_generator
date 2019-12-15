@@ -259,10 +259,13 @@ bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_
             mig.compute();
             //
 
+
             //
             if (mig.is_correct()) {
                 ++ok_cnt;
-                mig_apply(mig, sm.find_mincode(mig.vector));
+                auto min_mut = sm.find_mincode(mig.vector);
+                if (min_mut.vector!=(mig.out_invert?~mig.vector:mig.vector))
+                    mig_apply(mig, sm.find_mincode(mig.vector));
                 out_log <<mig_str[0]+" : OK" <<+" implemented: "
                         << (mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func)
                         << (mig_lib.add(mig)?" is better":" is not better")

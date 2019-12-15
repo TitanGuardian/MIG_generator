@@ -54,20 +54,26 @@ Mutation SearchMutation::find_mincode(std::bitset<32> func_vector) const {
     for (size_t it = 0 ; it < 32 ; ++it) {
         if (func_vector[it]) ++count_of_1;
     }
-    bool invert_out = count_of_1 > 16;
-    if (invert_out) {
-        func_vector = ~func_vector;
-    }
+    bool invert_out = 0;
+
 
     std::bitset<32> min = -1;
 
     const PermutationGenerator32::Permutation_vars *min_mutation;
+
     for (auto & el : mutations) {
         if (el.vector_permutation.apply(func_vector).to_ulong() < min.to_ulong()) {
             min_mutation = &el;
             min = el.vector_permutation.apply(func_vector).to_ulong();
+            invert_out = 0;
+        }
+        if (el.vector_permutation.apply(~func_vector).to_ulong() < min.to_ulong()) {
+            min_mutation = &el;
+            min = el.vector_permutation.apply(~func_vector).to_ulong();
+            invert_out = 1;
         }
     }
+
 
     Mutation res;
     res.vector = min;
