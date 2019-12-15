@@ -265,7 +265,7 @@ bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_
                 ++ok_cnt;
                 auto min_mut = sm.find_mincode(mig.vector);
                 if (min_mut.vector!=(mig.out_invert?~mig.vector:mig.vector))
-                    mig_apply(mig, sm.find_mincode(mig.vector));
+                    mig_apply(mig, min_mut);
                 out_log <<mig_str[0]+" : OK" <<+" implemented: "
                         << (mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func)
                         << (mig_lib.add(mig)?" is better":" is not better")
