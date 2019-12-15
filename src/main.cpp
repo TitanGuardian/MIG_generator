@@ -13,11 +13,19 @@
 
 int main () {
 //
-//    BestSchemasDict my_lib("./data");
-//    my_lib.out_statistic("initial database");
-//    std::cout<<my_lib.dict.size();
+    BestSchemasDict my_lib("./data");
+//    SearchMutation sm;
+//    std::cout << "hfak";
+//    MIG::bunch_check_update("./simple.txt", my_lib,sm);
+//    std::cout <<sm.find_mincode(12).vector;
 
-    Simple_Generator my_gen(3);
+//    PermutationGenerator32::generate_permutation1();
+
+
+    my_lib.out_statistic("initial database");
+    std::cout<<my_lib.dict.size();
+
+//    Simple_Generator my_gen(4);
 
 
 

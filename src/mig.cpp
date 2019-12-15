@@ -277,7 +277,7 @@ std::string get_file_contents(const char *filename)
 
 }
 
-bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib) {
+bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib, const SearchMutation& sm) {
     size_t  wrong_cnt = 0 ;
     size_t  error_cnt = 0 ;
     size_t  ok_cnt = 0 ;
@@ -297,12 +297,17 @@ bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_
         try {
             MIG mig(mig_str);
             mig.compute();
+            //
+
+            //
             if (mig.is_correct()) {
                 ++ok_cnt;
+                mig_apply(mig, sm.find_mincode(mig.vector));
                 out_log <<mig_str[0]+" : OK" <<+" implemented: "
                         << (mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func)
                         << (mig_lib.add(mig)?" is better":" is not better")
                         << "\n";
+
             }
             else {
                 ++wrong_cnt;
@@ -332,4 +337,54 @@ bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_
     out_log_file << out_log.str();
 
     return wrong_cnt==0;
+}
+
+
+bool MIG::mig_apply(MIG & mig, const Mutation & mutation) {
+    auto m_vec = mig.vector;
+    for (auto itr = 6; itr < mig.nodes.size() ; ++itr){
+        auto& el = mig.nodes[itr];
+        if (el.left>0 && el.left<=5) {
+            el.left_inv = el.left_inv ^ mutation.negation[el.left - 1];
+            el.left = mutation.variables[el.left-1]+1;
+        }
+        if (el.mid>0 && el.mid<=5) {
+            el.mid_inv = el.mid_inv ^ mutation.negation[el.mid - 1];
+            el.mid = mutation.variables[el.mid-1]+1;
+        }
+        if (el.right>0 && el.right<=5) {
+            el.right_inv = el.right_inv ^ mutation.negation[el.right - 1];
+            el.right = mutation.variables[el.right-1]+1;
+        }
+
+    }
+
+    if (mig.out>0 && mig.out<=5) {
+        mig.out_invert = mig.out_invert ^ mutation.negation[mig.out - 1];
+        mig.out = mutation.variables[mig.out-1]+1;
+    }
+
+    mig.out_invert = mig.out_invert^mutation.invert_out;
+
+    mig.compute();
+
+
+    //delete for increase speed
+    if ((mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func)!=mutation.vector) {
+        std::cout<<"\n"<< mig.out << std::endl;
+        for (auto & node : mig.nodes) {
+            std::cout<< node.second.impl_func << std::endl;
+        }
+        std::cout<< m_vec << std::endl;
+        std::cout<< mig.nodes[mig.out].impl_func << std::endl;
+        std::cout<< mutation.vector << std::endl;
+        std::cout<< mutation.variables <<std::endl;
+        std::cout<< mutation.negation<<std::endl;
+
+        throw std::logic_error("Wrong mutation");
+    }
+
+    mig.vector = mutation.vector;
+
+    return true;
 }

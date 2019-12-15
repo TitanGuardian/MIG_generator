@@ -17,7 +17,7 @@ typedef uint8_t NodeNumber;
 
 struct MIG;
 #include "BestSchemasDict.h"
-
+#include "SearchMutation.h"
 
 struct Node {
     class ExceptionCanNotCompute: std::exception {};
@@ -76,7 +76,8 @@ struct MIG {
 //    static uint32_t convert_to_uint32 (const std::bitset<32> & vector);
     void init_input_nodes();
     void compute();
-    static bool bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib);
+    static bool bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib, const SearchMutation& sm);
+    static bool mig_apply(MIG & mig, const Mutation & mutation);
 
     void compute_node_order();
 

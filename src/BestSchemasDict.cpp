@@ -97,6 +97,8 @@ void BestSchemasDict::save() {
 }
 
 bool BestSchemasDict::add(MIG &mig) {
+
+
     bool better = false;
     if (dict.count(mig.vector.to_ulong())) {
         better = dict[mig.vector.to_ulong()].complexity > mig.complexity;

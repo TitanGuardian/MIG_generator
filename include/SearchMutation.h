@@ -40,8 +40,8 @@ public:
 
     void compute_all_nodes();
 
-    Mutation find_mincode(std::bitset<32> func_vector);
-    Mutation find_mutation(std::bitset<32> find_from,std::bitset<32> find_this);
+    Mutation find_mincode(std::bitset<32> func_vector) const;
+    Mutation find_mutation(std::bitset<32> find_from,std::bitset<32> find_this) const;
 };
 
 

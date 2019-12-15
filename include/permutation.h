@@ -26,10 +26,13 @@ public:
     bool operator== (const Permutation & rhs);
     Permutation operator*(const Permutation & rhs) const;
 
+    inline unsigned int operator[] (size_t itr) const;
+
+
     Permutation reverse () const;
     static Permutation ident();
 
-    std::bitset<32> apply(const std::bitset<32> & vector);
+    std::bitset<size> apply(const std::bitset<size> & vector) const;
 
     std::string print() const;
 
@@ -65,6 +68,7 @@ public:
     PermutationGenerator32 ();
 
     void generate_permutation ();
+    static void generate_permutation1 ();
     void generate_negation();
     void generate_final_mutations();
 
@@ -124,6 +128,11 @@ Permutation<size> Permutation<size>::operator* (const Permutation & rhs) const {
     return res;
 }
 
+template <size_t size>
+unsigned int Permutation<size>::operator[] (size_t itr) const {
+    return permutation[itr];
+}
+
 
 template <size_t size>
 bool Permutation<size>::operator==(const Permutation &rhs) {
@@ -156,12 +165,22 @@ Permutation<size> Permutation<size>::reverse() const {
 }
 
 template <size_t size>
-std::bitset<32> Permutation<size>::apply(const std::bitset<32> & vector) {
-    std::bitset<32> new_vect;
+std::bitset<size> Permutation<size>::apply(const std::bitset<size> & vector) const {
+    std::bitset<size> new_vect;
     for (size_t itr = 0 ; itr < size ; ++itr) {
-        new_vect[size-1-itr] = vector[size-1-this->permutation[itr]];
+        new_vect[itr] = vector[this->permutation[itr]];
     }
     return new_vect;
 }
+
+
+template <size_t size>
+std::ostream& operator<< (std::ostream& out,const Permutation<size>& pm) {
+    for (auto el : pm.permutation) {
+        out << el << " ";
+    }
+    return out;
+}
+
 
 #endif //MIG_GENERATOR_PERMUTATION_H
