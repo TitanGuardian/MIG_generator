@@ -237,7 +237,8 @@ std::string get_file_contents(const char *filename)
 
 }
 
-bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib, const SearchMutation& sm) {
+bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib
+        , const SearchMutation& sm, bool computed) {
     size_t  wrong_cnt = 0 ;
     size_t  error_cnt = 0 ;
     size_t  ok_cnt = 0 ;
@@ -258,7 +259,9 @@ bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_
             MIG mig(mig_str);
             mig.compute();
             //
-
+            if (!computed) {
+                mig.vector = mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func;
+            }
 
             //
             if (mig.is_correct()) {
@@ -266,7 +269,7 @@ bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_
                 auto min_mut = sm.find_mincode(mig.vector);
                 if (min_mut.vector!=(mig.out_invert?~mig.vector:mig.vector))
                     mig_apply(mig, min_mut);
-                out_log <<mig_str[0]+" : OK" <<+" implemented: "
+                out_log <<mig.vector.to_ulong()<<" : OK" <<+" implemented: "
                         << (mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func)
                         << (mig_lib.add(mig)?" is better":" is not better")
                         << "\n";
@@ -351,3 +354,19 @@ bool MIG::mig_apply(MIG & mig, const Mutation & mutation) {
 
     return true;
 }
+
+std::string MIG::to_string() {
+    std::ostringstream outs;
+    outs << vector.to_ulong() << "\n";
+    outs << "MIG\n";
+    outs << complexity << "\n";
+    outs << out << " " << out_invert << "\n";
+    for (size_t itr = 6 ; itr < complexity+6 ; ++itr) {
+        outs << (int) nodes[itr].left << " " <<nodes[itr].left_inv << " ";
+        outs << (int) nodes[itr].mid << " " << nodes[itr].mid_inv << " ";
+        outs << (int) nodes[itr].right << " " << nodes[itr].right_inv << " ";
+    }
+    return outs.str();
+}
+
+

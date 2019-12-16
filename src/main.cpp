@@ -18,10 +18,13 @@
 
 
 int main () {
-    BestSchemasDict my_lib("./data");
+    BestSchemasDict my_lib("./data_tmp");
+    my_lib.dict.clear();
     SearchMutation sm;
+    MIG::bunch_check_update("out.txt", my_lib, sm, false);
     my_lib.out_statistic("some little circuits");
     std::cout<<my_lib.dict.size()<<"\n";
+    my_lib.save_to_txt("4vars.txt");
 
     return 0;
 }

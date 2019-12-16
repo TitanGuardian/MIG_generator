@@ -75,11 +75,15 @@ struct MIG {
 
     void init_input_nodes();
     void compute();
-    static bool bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib, const SearchMutation& sm);
+    static bool bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib
+            , const SearchMutation& sm, bool computed = true);
     static bool mig_apply(MIG & mig, const Mutation & mutation);
+
+
 
     void compute_node_order();
 
+    std::string to_string();
 
 };
 

@@ -17,18 +17,9 @@ void MIG_Generator::print_to_file(const std::string& filename) {
     std::cout << "Saving to file ... " << std::endl;
     std::ofstream out(filename.c_str());
     for (auto & migs : generated_migs)
-    for (auto& el : migs) {
-        out<< el.first << "\n";
-        out << "MIG\n";
-        out << el.second.complexity << "\n";
-        out << el.second.out << " " << el.second.out_invert << "\n";
-        for (size_t itr = 6 ; itr < el.second.complexity+6 ; ++itr) {
-            out << (int) el.second.nodes[itr].left << " " << el.second.nodes[itr].left_inv << " ";
-            out << (int) el.second.nodes[itr].mid << " " << el.second.nodes[itr].mid_inv << " ";
-            out << (int) el.second.nodes[itr].right << " " << el.second.nodes[itr].right_inv << " ";
+        for (auto& el : migs) {
+            out << el.second.to_string() << "\n";
         }
-        out << "\n";
-    }
 }
 
 

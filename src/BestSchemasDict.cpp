@@ -110,7 +110,12 @@ void BestSchemasDict::out_statistic(const std::string & message) {
     out<< "-------------------------------------------\n";
 }
 
-
+void BestSchemasDict::save_to_txt(const char * file_name) {
+    std::ofstream out (file_name);
+    for (auto & el : dict) {
+        out << el.second.to_string() << "\n";
+    }
+}
 
 
 BestSchemasDict::~BestSchemasDict() {

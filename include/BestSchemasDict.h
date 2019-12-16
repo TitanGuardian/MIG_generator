@@ -40,7 +40,7 @@ struct BestSchemasDict {
 
     void load();
     void save();
-
+    void save_to_txt(const char * file_name);
     void out_statistic(const std::string & message);
 
     ~BestSchemasDict();
