@@ -9,21 +9,19 @@
 #include <chrono>
 #include <algorithm>
 //#include <execution>
-#include <pthread.h>
+#include <omp.h>
 
 #define CONST_MIN_COMPLEXITY 200000
 
 void MIG_Generator::print_to_file(const std::string& filename) {
     std::cout << "Saving to file ... " << std::endl;
     std::ofstream out(filename.c_str());
-    for (auto & migs : generated_migs)
-        for (auto& el : migs) {
-            out << el.second.to_string() << "\n";
-        }
+    for (auto & el : generated_migs) {
+            out << el.to_string() << "\n";
+    }
 }
 
-
-
+#ifdef THREAD
 Simple_Generator::Simple_Generator(size_t generate_until_this_complexity)
     : complexity_bound(generate_until_this_complexity)
     , threads_tasks(THREAD_COUNT)
@@ -206,4 +204,72 @@ std::vector<Simple_Generator::InputComplexity> Simple_Generator::get_input_compl
         }
     }
     return  res;
+}
+#endif
+
+
+
+Shannon::Shannon() : mig4("4vars"), mig5_l("data", true), sm() {
+    std::cout<< "Copy STAGE" << std::endl;
+    copy_to_vector();
+    generated_migs.resize(mig5.size());
+}
+
+void Shannon::gen_migs(NodeNumber decomp_var) {
+    std::cout<< "Parallel STAGE" << std::endl;
+    size_t j= 0;
+    uint32_t var;
+    int shift;
+    switch (decomp_var) {
+        case 1:
+            var = 65535;
+            shift = 16;
+            break;
+        case 2:
+            var = 16711935;
+            shift = 8;
+            break;
+        case 3:
+            var = 252645135;
+            shift = 4;
+            break;
+        case 4:
+            var = 858993459;
+            shift = 2;
+            break;
+        case 5:
+            var = 1431655765;
+            shift = 1;
+            break;
+        default: throw;
+    }
+    std::bitset<32> mask2 = var;
+    std::bitset<32> mask1 = ~var;
+
+
+    #pragma omp parallel
+    {
+        #pragma omp for
+        for (size_t itr = 0; itr < mig5.size(); ++itr) { //
+            auto f  = std::bitset<32>(mig5[itr]);
+            auto f1 = (f&mask1) | ((f&mask1)>>shift);
+            auto f2 = (f&mask2) | ((f&mask2)<<shift);
+
+            auto mig1 = std::move(sm.get_MIG(f1, mig4));
+            auto mig2 = std::move(sm.get_MIG(f2, mig4));
+
+            generated_migs[itr] = std::move(MIG::mig_union(mig1,mig2,decomp_var));
+
+            #pragma omp critical
+            if (itr%10000 == 0) std::cout<< omp_get_thread_num()<< "  j = "<< j++ << std::endl;
+        }
+    }
+
+}
+
+void Shannon::copy_to_vector() {
+    mig5.reserve(mig5_l.dict.size());
+    for (auto& el: mig5_l.dict) {
+        mig5.emplace_back(el.second.vector.to_ulong());
+    }
 }

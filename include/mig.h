@@ -69,6 +69,7 @@ struct MIG {
 
     MIG () = default;
     MIG (MIG && mig) = default;
+    MIG (const MIG & mig) = default;
     MIG& operator= (MIG && mig) = default;
     MIG& operator= (const MIG& mig) = default;
     bool is_correct();
@@ -76,7 +77,7 @@ struct MIG {
     void init_input_nodes();
     void compute();
     static bool bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib
-            , const SearchMutation& sm, bool computed = true);
+            , SearchMutation& sm, bool computed = true);
     static bool mig_apply(MIG & mig, const Mutation & mutation);
 
 
@@ -84,6 +85,9 @@ struct MIG {
     void compute_node_order();
 
     std::string to_string();
+    static MIG mig_union(MIG & mig1 , MIG & mig2, NodeNumber decomp);
+
+
 
 };
 

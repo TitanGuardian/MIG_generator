@@ -9,8 +9,10 @@
 
 #ifndef MIG_GENERATOR_SEARCHTREE_H
 #define MIG_GENERATOR_SEARCHTREE_H
-
+class SearchMutation;
+class Mutation;
 #include "permutation.h"
+#include "mig.h"
 #include <vector>
 #include <map>
 #include <memory>
@@ -41,6 +43,7 @@ public:
     void compute_all_nodes();
 
     Mutation find_mincode(std::bitset<32> func_vector) const;
+    MIG get_MIG(std::bitset<32> func_vector, BestSchemasDict& min_mig);
     Mutation find_mutation(std::bitset<32> find_from,std::bitset<32> find_this) const;
 };
 

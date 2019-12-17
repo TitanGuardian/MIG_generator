@@ -87,24 +87,31 @@ Mutation SearchMutation::find_mincode(std::bitset<32> func_vector) const {
 Mutation SearchMutation::find_mutation(std::bitset<32> find_from, std::bitset<32> find_this) const {
     size_t count_of_1_from =0;
     size_t count_of_1_this =0;
+    size_t count_of_0_this =0;
+    size_t count_of_0_from =0;
     for (size_t it = 0 ; it < 32 ; ++it) {
         if (find_from[it]) ++count_of_1_from;
+        else ++count_of_0_from;
         if (find_this[it]) ++count_of_1_this;
+        else ++count_of_0_this;
     }
+    bool ok = false;
 
     bool invert_out = count_of_1_from > count_of_1_this;
     if (invert_out) {
         find_from = ~find_from;
     }
 
+
     const PermutationGenerator32::Permutation_vars *that_mutation;
     for (auto & el : mutations) {
         if (el.vector_permutation.apply(find_from) == find_this) {
             that_mutation = &el;
+            ok = true;
             break;
         }
     }
-
+    if (!ok) throw std::logic_error("no such mutation");
     Mutation res;
     if (that_mutation) {
         res.vector = that_mutation->vector_permutation.apply(find_from);
@@ -115,6 +122,14 @@ Mutation SearchMutation::find_mutation(std::bitset<32> find_from, std::bitset<32
     return res;
 }
 
+MIG SearchMutation::get_MIG(std::bitset<32> func_vector, BestSchemasDict& min_mig) {
+    auto min_mutation = find_mincode(func_vector);
+    MIG new_mig = min_mig.dict[min_mutation.vector.to_ulong()];
+    min_mutation.negation=min_mutation.variables.apply(min_mutation.negation);
+    min_mutation.variables = min_mutation.variables.reverse();
+    MIG::mig_apply(new_mig, min_mutation);
+    return new_mig;
+}
 
 
 

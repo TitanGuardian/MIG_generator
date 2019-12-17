@@ -8,8 +8,7 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <mutex>
-#include <thread>
+
 
 #include "mig.h"
 
@@ -19,10 +18,15 @@
 class MIG_Generator {
 public:
 
-    std::vector<std::map<uint64_t,MIG>> generated_migs;
+    std::vector<MIG> generated_migs;
 
     void print_to_file(const std::string& filename);
 };
+
+#ifdef THREAD
+
+#include <mutex>
+#include <thread>
 
 
 class Simple_Generator : public MIG_Generator {
@@ -41,9 +45,7 @@ public:
         uint8_t left;
         uint8_t mid;
         uint8_t right;
-
         InputComplexity(uint8_t _left, uint8_t _mid, uint8_t _right);
-
     };
 
     size_t wait_free_thread (std::vector<std::thread>& threads_tasks, std::vector<bool> &thread_ready);
@@ -55,9 +57,25 @@ public:
                              const Simple_Generator::InputComplexity& in_compl,
                              Simple_Generator& this_gen,
                              uint8_t level, uint32_t thread_num);
+};
+#endif
 
+
+class Shannon : public MIG_Generator {
+public:
+    BestSchemasDict mig4;
+    std::vector<uint32_t> mig5;
+    BestSchemasDict mig5_l;
+    SearchMutation sm;
+
+
+    Shannon ();
+    void gen_migs(NodeNumber decomp_var);
+    void copy_to_vector();
 
 };
+
+
 
 
 

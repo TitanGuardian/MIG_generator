@@ -33,8 +33,9 @@ struct BestSchema { // 6 byte
 struct BestSchemasDict {
     std::map<uint32_t, MIG> dict;
     std::string filename;
+    bool no_save;
 
-    explicit BestSchemasDict(std::string _filename);
+    explicit BestSchemasDict(std::string _filename, bool no_save = false);
 
     bool add (MIG &mig);
 

@@ -6,8 +6,9 @@
 
 #include <fstream>
 
-BestSchemasDict::BestSchemasDict(std::string _filename)
+BestSchemasDict::BestSchemasDict(std::string _filename, bool no_save)
     : filename(std::move(_filename))
+    , no_save(no_save)
 {
     load();
 }
@@ -119,7 +120,8 @@ void BestSchemasDict::save_to_txt(const char * file_name) {
 
 
 BestSchemasDict::~BestSchemasDict() {
-    save();
+    if (!no_save)
+        save();
 }
 
 

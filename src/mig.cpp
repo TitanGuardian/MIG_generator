@@ -58,6 +58,7 @@ void Node::compute(MIG & mig) {
 }
 
 void MIG::compute() {
+    compute_node_order();
     for (uint32_t i=6 ; i < compute_seq.size() ; ++i  ) {
         //if (nodes[compute_seq[i]].computed) throw;
         nodes[compute_seq[i]].compute(*this);
@@ -165,10 +166,6 @@ MIG::MIG(const BestSchema& schema_info, const std::vector<SchemaNode>& schema_no
         }
     }
     //
-    compute_seq.resize(6);
-    compute_seq.reserve(complexity+6);
-    std::iota(compute_seq.begin(),compute_seq.begin()+6 , 0);
-
     compute_node_order();
 
 }
@@ -238,7 +235,7 @@ std::string get_file_contents(const char *filename)
 }
 
 bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_lib
-        , const SearchMutation& sm, bool computed) {
+        , SearchMutation & sm, bool computed) {
     size_t  wrong_cnt = 0 ;
     size_t  error_cnt = 0 ;
     size_t  ok_cnt = 0 ;
@@ -336,21 +333,21 @@ bool MIG::mig_apply(MIG & mig, const Mutation & mutation) {
 
 
     //delete for increase speed
-    if ((mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func)!=mutation.vector) {
-        std::cout<<"\n"<< mig.out << std::endl;
-        for (auto & node : mig.nodes) {
-            std::cout<< node.second.impl_func << std::endl;
-        }
-        std::cout<< m_vec << std::endl;
-        std::cout<< mig.nodes[mig.out].impl_func << std::endl;
-        std::cout<< mutation.vector << std::endl;
-        std::cout<< mutation.variables <<std::endl;
-        std::cout<< mutation.negation<<std::endl;
+//    if ((mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func)!=mutation.vector) {
+//        std::cout<<"\n"<< mig.out << std::endl;
+//        for (auto & node : mig.nodes) {
+//            std::cout<< node.second.impl_func << std::endl;
+//        }
+//        std::cout<< m_vec << std::endl;
+//        std::cout<< mig.nodes[mig.out].impl_func << std::endl;
+//        std::cout<< mutation.vector << std::endl;
+//        std::cout<< mutation.variables <<std::endl;
+//        std::cout<< mutation.negation<<std::endl;
+//
+//        throw std::logic_error("Wrong mutation");
+//    }
 
-        throw std::logic_error("Wrong mutation");
-    }
-
-    mig.vector = mutation.vector;
+    mig.vector = mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func;
 
     return true;
 }
@@ -367,6 +364,59 @@ std::string MIG::to_string() {
         outs << (int) nodes[itr].right << " " << nodes[itr].right_inv << " ";
     }
     return outs.str();
+}
+
+MIG MIG::mig_union(MIG &mig1, MIG &mig2, NodeNumber decomp) {
+    MIG mig_res;
+    mig_res.init_input_nodes();
+    mig_res.complexity = mig1.complexity + mig2.complexity+3;
+    mig_res.type=true;
+
+    for (size_t itr = 6; itr < 6+mig1.complexity; ++itr) {
+        mig_res.nodes[itr] = mig1.nodes[itr];
+    }
+
+    for (size_t itr = 6; itr < 6+mig2.complexity; ++itr) {
+        Node new_node(mig2.nodes[itr]);
+        if (new_node.left > 5) new_node.left += mig1.complexity;
+        if (new_node.mid > 5) new_node.mid += mig1.complexity;
+        if (new_node.right > 5) new_node.right += mig1.complexity;
+        mig_res.nodes[itr+mig1.complexity] = std::move(new_node);
+    }
+
+    Node n1,n2,n3;
+    n1.left = decomp;
+    n1.left_inv = true;
+    n1.mid = mig1.out;
+    n1.mid_inv = mig1.out_invert;
+    n1.right = 0;
+    n1.right_inv = 0;
+    mig_res.nodes[6+mig1.complexity+mig2.complexity] = std::move(n1);
+
+    n2.left = decomp;
+    n2.left_inv = false;
+    n2.mid = (mig2.out>5?mig2.out+mig1.complexity:mig2.out);
+    n2.mid_inv = mig2.out_invert;
+    n2.right = 0;
+    n2.right_inv = false;
+    mig_res.nodes[7+mig1.complexity+mig2.complexity] = std::move(n2);
+
+    n3.left = 6+mig1.complexity+mig2.complexity;
+    n3.left_inv = false;
+    n3.mid = 7+mig1.complexity+mig2.complexity;
+    n3.mid_inv = false;
+    n3.right = 0;
+    n3.right_inv = true;
+    mig_res.nodes[8+mig1.complexity+mig2.complexity] = std::move(n3);
+
+    mig_res.out = 8+mig1.complexity+mig2.complexity;
+    mig_res.out_invert = false;
+
+    mig_res.compute();
+    mig_res.vector = mig_res.out_invert?~mig_res.nodes[mig_res.out].impl_func:mig_res.nodes[mig_res.out].impl_func;
+
+
+    return mig_res;
 }
 
 
