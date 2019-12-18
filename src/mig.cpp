@@ -293,7 +293,7 @@ bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_
         ++count ;
     }
 
-    std::ofstream out_log_file(("log"+filename+".txt").c_str());
+    std::ofstream out_log_file((filename+".log").c_str());
     out_log_file << "Circuits whole count: "<<count<<std::endl;
     out_log_file << "Invalid circuits count: "<<wrong_cnt<<std::endl;
     out_log_file << "Circuits with errors count: "<<error_cnt<<"\n\n"<<std::endl;
