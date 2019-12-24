@@ -7,6 +7,8 @@
 
 
 int main (int argc, char** argv) {
+
+
 //    // создание базы данных, и прогрузка уже существующей
 //    BestSchemasDict ml("data");
 //

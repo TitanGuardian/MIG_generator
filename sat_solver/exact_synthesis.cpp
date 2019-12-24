@@ -1,5 +1,7 @@
 #include <vector>
 #include <fstream>
+
+
 #include "z3++.h"
 
 const unsigned VarToClassNum[] = { 0, 2, 4, 14, 222, 616126 };
@@ -106,6 +108,10 @@ int main(int argc, char** argv) {
     unsigned nNode = std::stoll(argv[2]);
     unsigned c = uTruth;
 
+    unsigned timeout = 0;
+    if (argc>3) timeout = std::stoll(argv[3]);
+
+
     std::cout << "Generating subgraph for class " << c << ",";
     std::cout << " truth = ";  printf("0x%08X,", uTruth);
     std::cout << " complexity = " << nNode << std::endl;
@@ -114,6 +120,9 @@ int main(int argc, char** argv) {
     for (int i = 1; i <= nNode; ++i) nodes.push_back(Node(i));
 
     z3::solver svr(ctx);
+
+    svr.set(":timeout",timeout);
+
     for (int i = 0; i < nNode; ++i) {
         nodes[i].addMajorityFormula(svr);
         nodes[i].addConnectionFormula(svr);
@@ -159,7 +168,9 @@ int main(int argc, char** argv) {
 
 
     if (svr.check()) {
-        std::ofstream out((std::to_string(c)+".txt").c_str(), std::ios::out);
+        std::system("mkdir -p nets");
+
+        std::ofstream out(("./nets/"+std::to_string(c)+".txt").c_str(), std::ios::out);
         z3::model mod = svr.get_model();
         out << c << "\n";
         out << "MIG" << "\n";

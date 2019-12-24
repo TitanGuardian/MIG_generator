@@ -31,19 +31,25 @@ ENDIF()
 
 include_directories(./include )
 
+add_library (MIG ./src/mig.cpp ./src/permutation.cpp ./src/SearchMutation.cpp ./src/BestSchemasDict.cpp)
+
+add_library (GENERATOR ./src/mig_generator.cpp)
+target_link_libraries (GENERATOR MIG)
 
 
 add_executable(MIG_generator
         ./src/main.cpp
-        ./src/mig.cpp
-        ./src/permutation.cpp
-        ./src/SearchMutation.cpp
-        ./src/mig_generator.cpp
-        ./src/BestSchemasDict.cpp
         )
 
-target_link_libraries(MIG_generator pthread)
 
+target_link_libraries(MIG_generator
+        MIG
+        GENERATOR
+	pthread  	      
+)
 
-add_executable(sat_sh sh_for_sat.cpp) 
+add_executable(mincodebycomplexity ./src/get_mincode_complexity.cpp ) 
 
+target_link_libraries(mincodebycomplexity
+        MIG
+)
