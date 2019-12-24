@@ -255,9 +255,14 @@ bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_
         try {
             MIG mig(mig_str);
             mig.compute();
+            if (mig.complexity!=mig.nodes.size()-6) {
+                std::cout << "wrong complexity";
+                mig.complexity = mig.nodes.size()-6;
+            }
             //
             if (!computed) {
                 mig.vector = mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func;
+
             }
 
             //

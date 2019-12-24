@@ -43,3 +43,7 @@ add_executable(MIG_generator
         )
 
 target_link_libraries(MIG_generator pthread)
+
+
+add_executable(sat_sh sh_for_sat.cpp) 
+
