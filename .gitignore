@@ -13,5 +13,6 @@ final*
 generated*
 sat_solver/sat
 sat_solver/bunch_sat
+sat_solver/check
 sat_solver/nets*
 sat_solver/*.txt

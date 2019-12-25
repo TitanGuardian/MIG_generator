@@ -1,6 +1,7 @@
 #include <vector>
 #include <fstream>
-
+#include <algorithm>
+#include <chrono>
 
 #include "z3++.h"
 
@@ -11,6 +12,7 @@ const int FUNC = 1 << VAR;
 const int NPN = VarToClassNum[VAR];
 z3::context ctx;
 
+using namespace std::chrono;
 class Node {
     public:
         Node(int i): id(i), b(ctx), a1(ctx), a2(ctx), a3(ctx), ss(ctx), ps(ctx) 
@@ -79,7 +81,7 @@ class Node {
                     for (int k = 0; k < FUNC; ++k) {
                         bool value = (k >> (j-1)) & 01;
                         z3::expr psi = ps[i];
-                        z3::expr impl = implies( (ssi == j), ((*aa)[k] == ((value&&psi)||(!value&&!psi))) );
+                        z3::expr impl = implies( (ssi == j), ((*aa)[k] == ((value&&!psi)||(!value&&psi))) );
                         svr.add(impl);
                     }
                 }
@@ -93,7 +95,10 @@ class Node {
             svr.add( (ss[1] < ss[2]) );
         }
 
-        int             id;
+
+
+
+        int                 id;
         z3::expr_vector      b;
         z3::expr_vector     a1;
         z3::expr_vector     a2;
@@ -101,6 +106,24 @@ class Node {
         z3::expr_vector     ss;
         z3::expr_vector     ps;
 };
+
+void add_structural_hashing (z3::solver& svr, Node& n1, Node& n2) {
+    svr.add(((n1.ss[0]!=n2.ss[0])||(n1.ss[1]!=n2.ss[1])||(n1.ss[2]!=n2.ss[2])
+           ||(n1.ps[0]!=n2.ps[0])||(n1.ps[1]!=n2.ps[1])||(n1.ps[2]!=n2.ps[2])));
+}
+
+void add_associativity(z3::solver& svr, Node& n2, Node& n1) {
+    for (int a = 0 ; a <=2 ; ++a)
+        for (int b = 0 ; b <=2 ; ++b) {
+            if (a == b) continue;
+            for (int c = 0; c <= 2; ++c) {
+                z3::expr impl = implies( ((n2.ss[b]==n1.id+VAR)&&(n2.ss[a]==n2.ss[c])&&(n2.ps[a]==n1.ps[c])),
+                        ((n1.ss[3-(c==2?2:1)])<=n2.ss[3-a-b]));
+                svr.add(impl);
+            }
+        }
+}
+
 
 int main(int argc, char** argv) {
 
@@ -128,6 +151,13 @@ int main(int argc, char** argv) {
         nodes[i].addConnectionFormula(svr);
         nodes[i].addSymmetryFormula(svr);
     }
+    for (int i = 0; i < nNode-1; ++i) {
+        for (int j = i+1; j < nNode; ++j) {
+            add_structural_hashing(svr, nodes[i], nodes[j]);
+            add_associativity(svr,nodes[i],nodes[j]);
+        }
+    }
+
 
     // Input connection: majority node
     for (int i = 0; i < nNode; ++i) {
@@ -162,11 +192,11 @@ int main(int argc, char** argv) {
     }
 
     // In our implementation, output edge should not be negated.
-    //svr.add(!root_p);
+    svr.add(!root_p);
 
     // Subgraphs generation
 
-
+    auto start = high_resolution_clock::now();
     if (svr.check()) {
         std::system("mkdir -p nets");
 
@@ -183,11 +213,14 @@ int main(int argc, char** argv) {
         }
         out << std::endl;
         out.close();
+
     }
     else {
         std::cout<<"No model found \n";
         return 1;
     }
+    auto stop = high_resolution_clock::now();
+    std::cout<<"\nTime: " << (duration_cast<seconds>(stop - start)).count()<<"\n";
 
     return 0;
 }

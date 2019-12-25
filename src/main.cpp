@@ -7,7 +7,10 @@
 
 
 int main (int argc, char** argv) {
-
+    BestSchemasDict ml("data");
+    SearchMutation sm;
+    MIG::bunch_check_update("out.txt", ml,sm, false);
+    ml.out_statistic("add sated 7");
 
 //    // создание базы данных, и прогрузка уже существующей
 //    BestSchemasDict ml("data");

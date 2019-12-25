@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 set(CMAKE_CXX_FLAGS "-Ofast")
-#set(CMAKE_CXX_FLAGS "-L \"C:/Program Files (x86)/mingw64/bin\" -ltbb")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -lstdc++")
 #set(CMAKE_CXX_FLAGS " ")
 
 message(STATUS "Checking OpenMP")
@@ -53,3 +53,11 @@ add_executable(mincodebycomplexity ./src/get_mincode_complexity.cpp )
 target_link_libraries(mincodebycomplexity
         MIG
 )
+
+add_executable(check ./src/check_correctness.cpp )
+
+target_link_libraries(check
+        MIG
+        )
+
+

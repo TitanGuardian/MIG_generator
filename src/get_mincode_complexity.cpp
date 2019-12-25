@@ -11,7 +11,6 @@ int main (int argc, char** argv) {
 
     std::ofstream out (argv[1]);
     int c = std::stoi(argv[2]);
-
     for (auto & el : ml.dict) {
         if (c==el.second.complexity) {
             out<<el.first<<" "<<c-1<<" ";
