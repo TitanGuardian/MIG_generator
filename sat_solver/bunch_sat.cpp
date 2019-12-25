@@ -26,8 +26,7 @@ int main (int argc, char** argv) {
         list.emplace_back(std::move(tmp));
     }
     auto start = high_resolution_clock::now();
-
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic, 1)
     for (auto itr = 0 ; itr < list.size() ; ++itr){
         system(("./sat "+ list[itr].first +" " +list[itr].second+" "+argv[2]).c_str());
     }

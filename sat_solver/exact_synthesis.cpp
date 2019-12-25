@@ -94,7 +94,11 @@ class Node {
             svr.add( (ss[0] < ss[1]) );
             svr.add( (ss[1] < ss[2]) );
         }
-
+        void addComplementConstraint(z3::solver& svr) {
+            svr.add(!ps[0] || !ps[1]);
+            svr.add(!ps[0] || !ps[2]);
+            svr.add(!ps[1] || !ps[2]);
+        }
 
 
 
@@ -112,12 +116,12 @@ void add_structural_hashing (z3::solver& svr, Node& n1, Node& n2) {
            ||(n1.ps[0]!=n2.ps[0])||(n1.ps[1]!=n2.ps[1])||(n1.ps[2]!=n2.ps[2])));
 }
 
-void add_associativity(z3::solver& svr, Node& n2, Node& n1) {
+void add_associativity(z3::solver& svr, Node& n1, Node& n2) {
     for (int a = 0 ; a <=2 ; ++a)
         for (int b = 0 ; b <=2 ; ++b) {
             if (a == b) continue;
             for (int c = 0; c <= 2; ++c) {
-                z3::expr impl = implies( ((n2.ss[b]==n1.id+VAR)&&(n2.ss[a]==n2.ss[c])&&(n2.ps[a]==n1.ps[c])),
+                z3::expr impl = implies( ((n2.ss[b]==n1.id+VAR)&&(n2.ss[a]==n1.ss[c])&&(n2.ps[a]==n1.ps[c])),
                         ((n1.ss[3-(c==2?2:1)])<=n2.ss[3-a-b]));
                 svr.add(impl);
             }
@@ -150,12 +154,7 @@ int main(int argc, char** argv) {
         nodes[i].addMajorityFormula(svr);
         nodes[i].addConnectionFormula(svr);
         nodes[i].addSymmetryFormula(svr);
-    }
-    for (int i = 0; i < nNode-1; ++i) {
-        for (int j = i+1; j < nNode; ++j) {
-            add_structural_hashing(svr, nodes[i], nodes[j]);
-            add_associativity(svr,nodes[i],nodes[j]);
-        }
+        nodes[i].addComplementConstraint(svr);
     }
 
 
@@ -191,21 +190,30 @@ int main(int argc, char** argv) {
         svr.add(f);
     }
 
-    // In our implementation, output edge should not be negated.
     svr.add(!root_p);
+
+
+    for (int i = 0; i < nNode-1; ++i) {
+        for (int j = i+1; j < nNode; ++j) {
+            add_structural_hashing(svr, nodes[i], nodes[j]);
+            add_associativity(svr,nodes[i],nodes[j]);
+        }
+    }
+
 
     // Subgraphs generation
 
     auto start = high_resolution_clock::now();
     if (svr.check()) {
+        z3::model mod = svr.get_model();
         std::system("mkdir -p nets");
 
         std::ofstream out(("./nets/"+std::to_string(c)+".txt").c_str(), std::ios::out);
-        z3::model mod = svr.get_model();
+
         out << c << "\n";
         out << "MIG" << "\n";
         out << nodes.size() << "\n";
-        out << nodes.size()+5 << " " <<(mod.eval(root_p).to_string()=="true"?1:0) << " " << "\n";
+        out << nodes.size()+VAR << " " <<(mod.eval(root_p).to_string()=="true"?1:0) << " " << "\n";
         for (int i = 0; i < nodes.size(); ++i) {
             for (int j = 0; j < 3; ++j) {
                 out << mod.eval(nodes[i].ss[j]) << " " << (mod.eval(nodes[i].ps[j]).to_string()=="true"?1:0) << " ";
@@ -217,7 +225,6 @@ int main(int argc, char** argv) {
     }
     else {
         std::cout<<"No model found \n";
-        return 1;
     }
     auto stop = high_resolution_clock::now();
     std::cout<<"\nTime: " << (duration_cast<seconds>(stop - start)).count()<<"\n";
