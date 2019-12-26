@@ -190,9 +190,7 @@ int main(int argc, char** argv) {
         svr.add(f);
     }
 
-    svr.add(!root_p);
-
-
+    
     for (int i = 0; i < nNode-1; ++i) {
         for (int j = i+1; j < nNode; ++j) {
             add_structural_hashing(svr, nodes[i], nodes[j]);
