@@ -7,10 +7,11 @@
 
 
 int main (int argc, char** argv) {
-    BestSchemasDict ml("data");
     SearchMutation sm;
-    MIG::bunch_check_update("out.txt", ml,sm, false);
-    ml.out_statistic("add sated 6");
-    
+    BestSchemasDict ml("data");
+    MIG::bunch_check_update("zed.txt", ml,sm,false);
+
+    ml.out_statistic("some schemas to compl 5");
+    //ml.save_to_txt("migs.txt");
     return 0;
 }

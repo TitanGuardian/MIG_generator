@@ -100,8 +100,6 @@ class Node {
             svr.add(!ps[1] || !ps[2]);
         }
 
-
-
         int                 id;
         z3::expr_vector      b;
         z3::expr_vector     a1;
@@ -127,6 +125,15 @@ void add_associativity(z3::solver& svr, Node& n1, Node& n2) {
             }
         }
 }
+
+void add_colexicographic (z3::solver& svr, Node& n1, Node& n2) {
+    z3::expr impl = implies( (n2.ss[2]==n1.id+VAR),
+                             ((n1.ss[0]<n2.ss[0])
+                             ||((n1.ss[0]==n2.ss[0])&&(n1.ss[1]<n2.ss[1]))
+                             ||((n1.ss[0]==n2.ss[0])&&(n1.ss[1]==n2.ss[1])&&(n1.ss[2]<=n2.ss[2]))));
+    svr.add(impl);
+}
+
 
 
 int main(int argc, char** argv) {
@@ -196,6 +203,7 @@ int main(int argc, char** argv) {
             add_structural_hashing(svr, nodes[i], nodes[j]);
             add_associativity(svr,nodes[i],nodes[j]);
         }
+        add_colexicographic(svr, nodes[i], nodes[i+1]);
     }
 
 
