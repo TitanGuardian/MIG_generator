@@ -8,10 +8,9 @@
 
 int main (int argc, char** argv) {
     SearchMutation sm;
-    BestSchemasDict ml("data");
-    MIG::bunch_check_update("zed.txt", ml,sm,false);
-
-    ml.out_statistic("some schemas to compl 5");
-    //ml.save_to_txt("migs.txt");
+    BestSchemasDict ml("datas");
+    MIG::bunch_check_update("rejsoned.txt",ml,sm, false);
+    ml.out_statistic("sat 14 jan31");
+    ml.save_to_txt("jan31migs.txt");
     return 0;
 }

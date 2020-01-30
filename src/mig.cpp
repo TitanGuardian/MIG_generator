@@ -262,14 +262,13 @@ bool MIG::bunch_check_update(const std::string& filename, BestSchemasDict & mig_
             //
             if (!computed) {
                 mig.vector = mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func;
-
             }
 
             //
             if (mig.is_correct()) {
                 ++ok_cnt;
                 auto min_mut = sm.find_mincode(mig.vector);
-                if (min_mut.vector!=(mig.out_invert?~mig.vector:mig.vector))
+                if (min_mut.vector!=(mig.vector));
                     mig_apply(mig, min_mut);
                 out_log <<mig.vector.to_ulong()<<" : OK" <<+" implemented: "
                         << (mig.out_invert?~mig.nodes[mig.out].impl_func:mig.nodes[mig.out].impl_func)
@@ -420,8 +419,69 @@ MIG MIG::mig_union(MIG &mig1, MIG &mig2, NodeNumber decomp) {
     mig_res.compute();
     mig_res.vector = mig_res.out_invert?~mig_res.nodes[mig_res.out].impl_func:mig_res.nodes[mig_res.out].impl_func;
 
-
     return mig_res;
 }
 
+MIG MIG::shrink (MIG & mig) {
+    std::map<unsigned long, NodeNumber> map_value_node;
+    std::map<NodeNumber,NodeNumber> change_first_to_second;
+    for (size_t itr = 6, end = mig.compute_seq.size(); itr<end ; ++itr) {
+       if (map_value_node.count(mig.nodes[mig.compute_seq[itr]].impl_func.to_ulong())) {
+           change_first_to_second[mig.compute_seq[itr]] = map_value_node[mig.nodes[itr].impl_func.to_ulong()];
+       } else {
+           map_value_node[mig.nodes[itr].impl_func.to_ulong()] = mig.compute_seq[itr];
+       }
+    }
+    if (change_first_to_second.size()==0) {
+        return mig;
+    }
+    std::vector<NodeNumber> new_numeration(mig.compute_seq.size()-change_first_to_second.size());
+    uint8_t itr = 0;
+    size_t new_size = new_numeration.size();
+    std::vector<NodeNumber> node_conformity(mig.compute_seq.size());
+    for (uint8_t it = 0; it < mig.compute_seq.size(); ++it) {
+        if (change_first_to_second.count(mig.compute_seq[it])) {
+            node_conformity[it] = node_conformity[change_first_to_second[mig.compute_seq[it]]];
+        }
+        else {
+            node_conformity[it] = itr;
+            new_numeration[itr] = mig.compute_seq[it];
+            itr++;
+        }
+    }
 
+    MIG new_mig;
+    for (itr = 0; itr < new_size; ++itr ) {
+        new_mig.nodes[itr] = mig.nodes[new_numeration[itr]];
+        new_mig.nodes[itr].right = node_conformity[mig.nodes[new_numeration[itr]].right];
+        new_mig.nodes[itr].mid = node_conformity[mig.nodes[new_numeration[itr]].mid];
+        new_mig.nodes[itr].left = node_conformity[mig.nodes[new_numeration[itr]].left];
+    }
+    new_mig.out = node_conformity[mig.out];
+    new_mig.out_invert = mig.out_invert;
+    new_mig.complexity = new_numeration.size()-6;
+    try {
+        new_mig.compute();
+    }
+    catch (...) {
+        std::cout<<"\n"<<mig.vector<<"\n"<<mig.vector.to_ulong()
+            <<"\n"<<mig.to_string()<<"\n"<<new_mig.to_string()<<std::endl;
+        return mig;
+    }
+    new_mig.vector = new_mig.out_invert? ~new_mig.nodes[new_mig.out].impl_func:new_mig.nodes[new_mig.out].impl_func;
+    if (new_mig.vector!=mig.vector) {
+        std::cout << "\n Wrong shrink\n" << mig.vector << "\n" << mig.vector.to_ulong()
+                  << "\n" << mig.to_string() << "\n" << new_mig.to_string() << std::endl;
+        return mig;
+    }
+
+    return new_mig;
+}
+void MIG::shrink_file (const char * filename, SearchMutation& sm) {
+    BestSchemasDict ml("shrink_lib", true);
+    bunch_check_update(filename, ml,sm, false);
+    std::ofstream out(std::string(filename)+"_shrinked.txt");
+    for (auto [key,value] : ml.dict) {
+        out << MIG::shrink(value).to_string() << "\n";
+    }
+};

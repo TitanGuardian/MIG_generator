@@ -60,4 +60,9 @@ target_link_libraries(check
         MIG
         )
 
+add_executable(shrink ./src/shrink.cpp )
+
+target_link_libraries(shrink
+        MIG
+        )
 

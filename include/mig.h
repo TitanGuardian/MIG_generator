@@ -38,7 +38,7 @@ struct MIG {
     bool type;
 
     // полезный вектор
-    std::vector<uint32_t> compute_seq;
+    std::vector<uint8_t> compute_seq;
 
 
     explicit MIG (const std::vector<std::string>& mig_str);
@@ -64,6 +64,8 @@ struct MIG {
 
     std::string to_string();
     static MIG mig_union(MIG & mig1 , MIG & mig2, NodeNumber decomp);
+    static MIG shrink (MIG & mig);
+    static void shrink_file (const char * filename, SearchMutation & sm);
 
 
 
