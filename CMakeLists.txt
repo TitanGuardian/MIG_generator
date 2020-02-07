@@ -4,7 +4,7 @@ project(MIG_generator)
 set(CMAKE_CXX_STANDARD 17)
 
 
-set(CMAKE_CXX_FLAGS "-Ofast")
+#set(CMAKE_CXX_FLAGS "-Ofast")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -lstdc++")
 #set(CMAKE_CXX_FLAGS " ")
 
@@ -31,7 +31,7 @@ ENDIF()
 
 include_directories(./include )
 
-add_library (MIG ./src/mig.cpp ./src/permutation.cpp ./src/SearchMutation.cpp ./src/BestSchemasDict.cpp)
+add_library (MIG ./src/mig.cpp ./src/permutation.cpp ./src/SearchMutation.cpp ./src/BestSchemasDict.cpp ./src/schema_info.cpp)
 
 add_library (GENERATOR ./src/mig_generator.cpp)
 target_link_libraries (GENERATOR MIG)

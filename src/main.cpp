@@ -3,14 +3,14 @@
 #include <fstream>
 #include <sstream>
 
-#include "mig.h"
 
+#include "mig.h"
+#include "schema_info.h"
 
 int main (int argc, char** argv) {
     SearchMutation sm;
-    BestSchemasDict ml("datas");
-    MIG::bunch_check_update("rejsoned.txt",ml,sm, false);
-    ml.out_statistic("sat 14 jan31");
-    ml.save_to_txt("jan31migs.txt");
+    auto info1 = Info::GetMonotoneInfo(54279363,sm); //380225912
+    auto info = Info::GetSymmetryInfo(54279363*65536+54279363,sm);
+    std::cout << info;
     return 0;
 }

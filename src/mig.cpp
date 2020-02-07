@@ -464,14 +464,14 @@ MIG MIG::shrink (MIG & mig) {
         new_mig.compute();
     }
     catch (...) {
-        std::cout<<"\n"<<mig.vector<<"\n"<<mig.vector.to_ulong()
-            <<"\n"<<mig.to_string()<<"\n"<<new_mig.to_string()<<std::endl;
+//        std::cout<<"\n"<<mig.vector<<"\n"<<mig.vector.to_ulong()
+//            <<"\n"<<mig.to_string()<<"\n"<<new_mig.to_string()<<std::endl;
         return mig;
     }
     new_mig.vector = new_mig.out_invert? ~new_mig.nodes[new_mig.out].impl_func:new_mig.nodes[new_mig.out].impl_func;
     if (new_mig.vector!=mig.vector) {
-        std::cout << "\n Wrong shrink\n" << mig.vector << "\n" << mig.vector.to_ulong()
-                  << "\n" << mig.to_string() << "\n" << new_mig.to_string() << std::endl;
+//        std::cout << "\n Wrong shrink\n" << mig.vector << "\n" << mig.vector.to_ulong()
+//                  << "\n" << mig.to_string() << "\n" << new_mig.to_string() << std::endl;
         return mig;
     }
 
