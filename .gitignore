@@ -17,3 +17,5 @@ sat_solver/check
 sat_solver/nets*
 sat_solver/*.txt
 jan29*
+sat_solver/parallel_sat
+sat_solver/exact_synthesis.cpp
