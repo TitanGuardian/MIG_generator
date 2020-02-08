@@ -206,6 +206,8 @@ int main(int argc, char** argv) {
         add_colexicographic(svr, nodes[i], nodes[i+1]);
     }
 
+    // for aws
+    svr.add((root_p==1));
 
     // Subgraphs generation
 
